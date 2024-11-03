@@ -51,6 +51,9 @@ def gnt_to_img(gnt_dir, img_dir):
     thread_pool.shutdown()
 
 
+def new_func(train_img_dir):
+    os.mkdir(train_img_dir)
+
 if __name__ == "__main__":
     # 路径
     data_dir = r'./data'
@@ -58,11 +61,10 @@ if __name__ == "__main__":
     test_gnt_dir = os.path.join(data_dir, 'HWDB1.1tst_gnt')
     train_img_dir = os.path.join(data_dir, 'train')
     test_img_dir = os.path.join(data_dir, 'test')
-    if not os.path.exists(train_img_dir):
-        os.mkdir(train_img_dir)
-    if not os.path.exists(test_img_dir):
-        os.mkdir(test_img_dir)
 
+    # 使用 os.makedirs 确保路径存在
+    os.makedirs(train_img_dir, exist_ok=True)
+    os.makedirs(test_img_dir, exist_ok=True)
     # 获取字符集合
     if not os.path.exists('char_dict'):
         char_set = set()
@@ -79,8 +81,12 @@ if __name__ == "__main__":
     else:
         with open('char_dict', 'rb') as f:
             char_dict = pickle.load(f)
-
-    train_thread = threading.Thread(target=gnt_to_img, args=(train_gnt_dir, train_img_dir)).start()
-    test_thread = threading.Thread(target=gnt_to_img, args=(test_gnt_dir, test_img_dir)).start()
+    #创建线程
+    train_thread = threading.Thread(target=gnt_to_img, args=(train_gnt_dir, train_img_dir))
+    test_thread = threading.Thread(target=gnt_to_img, args=(test_gnt_dir, test_img_dir))
+    # 启动线程
+    train_thread.start()
+    test_thread.start()
+    # 等待线程完成
     train_thread.join()
     test_thread.join()
